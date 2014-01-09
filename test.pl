@@ -37,7 +37,7 @@ my $app = sub {
 
 builder {
 	if ( defined $key ) {
-        enable 'DetectRobots', env_key => $key, extended_check => 0;
+        enable 'DetectRobots', env_key => $key, local_regexp => qr/firefox/i;
 	}
 	else {
 		enable 'DetectRobots', extended_check => 1;
