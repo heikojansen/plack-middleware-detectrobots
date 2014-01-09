@@ -11,6 +11,12 @@ use Plack::Util::Accessor qw( env_key basic_check extended_check generic_check l
 use Regexp::Assemble qw();
 use feature 'state';
 
+sub prepare_app {
+	my $self = shift;
+	$self->basic_check(1) unless defined $self->basic_check;
+	return;
+}
+
 sub call {
 	my ( $self, $env ) = @_;
 
@@ -67,21 +73,166 @@ sub _read_list {
 	my $bots = { basic => [], extended => [], generic => [], };
 	my $currentType = 'basic';
 
+	state $pos = tell(Plack::Middleware::DetectRobots::DATA);
+	if ( $ENV{'HARNESS_ACTIVE'} ) {
+		seek( Plack::Middleware::DetectRobots::DATA, $pos, 0 );
+	}
+
 	while (<Plack::Middleware::DetectRobots::DATA>) {
 		chomp;
-		last if /__END__/;
 		next unless $_;
 		$currentType = 'extended' if /\A##\s+EXTENDED/;
 		$currentType = 'generic'  if /\A##\s+GENERIC/;
 
 		push @{ $bots->{$currentType} }, $_;
 	}
-	close Plack::Middleware::DetectRobots::DATA;
+
+	if ( !$ENV{'HARNESS_ACTIVE'} ) {
+		close Plack::Middleware::DetectRobots::DATA;
+	}
 
 	return $bots;
 }
 
 1;
+
+=pod
+
+=encoding utf-8
+
+=head1 SYNOPSIS
+
+  use Plack::Builder;
+
+  my $app = sub { ... } # as usual
+
+  builder {
+      enable 'DetectRobots';
+	  # or: enable 'DetectRobots', env_key => 'psgix.robot_client';
+	  # or: enable 'DetectRobots', extended_check => 1, generic_check => 1;
+      $app;
+  };
+
+  # ... and later ...
+  
+  if ( $yourApp->theEnv->{'robot_client'} ) {
+      # ... do something ...
+  }
+
+=head1 WARNING
+
+This software is currently considered ALPHA and still needs to
+be seriously tested!
+
+=head1 DESCRIPTION
+
+This Plack middleware uses the list of robots that is part of the 
+L<AWStats log analyzer|http://awstats.org/> software package to 
+analyse the C<User-Agent> HTTP header and to set an environment 
+flag to either a true or false value depending on the detection 
+of a robot client.
+
+Once activated it checks the User-Agent HTTP header against a 
+basic list of patterns for common bots.
+
+If you activate the appropriate options, it can also use an extended
+list for the detection of less common bots (cf. C<extended_check>)
+and / or a list of quite generic patterns to detect unknown bots
+(cf. C<generic_check>).
+
+You may also pass in your own regular expression as a string for
+further checks (cf. <local_regexp>).
+
+The checks are executed in this order:
+
+B<1.> Local regular expression
+
+B<2.> Basic check
+
+B<3.> Extended check
+
+B<4.> Generic check
+
+If a check yields a positive result (i.e.: detects a bot) the
+remaining checks are skipped.
+
+Depending on the check which detected a bot, the environment flag
+is set to one of these values: C<LOCAL>, C<BASIC>, C<EXTENDED>, or
+C<GENERIC>.
+
+If no bot is detected, the flag is set to C<0>.
+
+The default name of the flag in the environment is C<robot_client>,
+but this can be customized by setting the C<env_key> option when 
+enabling this middleware.
+
+It might make sense to use C<psgix.robot_client> by default instead,
+but the PSGI spec states that the "'psgix.' prefix is reserved for 
+officially blessed extensions" - which does not apply to this module.
+You may, however, set the key to C<psgix.mobile_client> yourself
+by using the C<env_key> option mentioned before.
+
+=head1 ROBOTS LIST
+
+Based on B<Revision 1.71, 2014-01-08> of
+L<http://awstats.cvs.sourceforge.net/viewvc/awstats/awstats/wwwroot/cgi-bin/lib/robots.pm?revision=1.71&view=markup>.
+
+=head1 CONFIGURATION
+
+You may specify the following option when enabling the middleware:
+
+=over 4
+
+=item C<env_key>
+
+Set the name of the entry in the environment hash.
+
+=item C<basic_check>
+
+You may deactivate the standard checks by setting this option to
+a false value. E.g. if your are only interested in obscure bots
+or in your local pattern checks.
+
+By setting this option to a false value while simultaneously 
+passing a regular expression to C<local_regexp> one can imitate
+the behaviour of L<Plack::Middleware::BotDetector>.
+
+=item C<extended_check>
+
+Determines if an extended list of less often seen robots is also
+checked for.
+By default, only common robots are checked for, because the extended
+check requires a rather large and complex regular expression.
+Set this param to a true value to change the default behaviour.
+
+=item C<generic_check>
+
+Determines if the User-Agent string is also analysed to determine
+if it contains certain strings that generically identify the
+client as a bot, e.g. "spider" or "crawler"
+By default, this check is not performed, even though it uses only
+a relatively short and simple regex..
+Set this param to a true value to change the default behaviour.
+
+=item C<local_regexp>
+
+You may optionally pass in your own regular expression (as a Regexp
+object using C<qr//>) to check for additional patterns in the 
+User-Agent string.
+
+=back
+
+=head1 SEE ALSO
+
+L<Plack>, L<Plack::Middleware>, L<Plack::Middleware::BotDetector>,
+L<http://awstats.org/>
+
+The functionality provided by C<Plack::Middleware::BotDetector> is 
+basically the same as that of this module, but it requires you to 
+pass in your own regular expression and does not include a default
+list of known bots.
+
+=cut
 
 __DATA__
 appie
@@ -878,144 +1029,4 @@ curl
 php
 ruby\/
 no_user_agent
-
-__END__
-
-=pod
-
-=encoding utf-8
-
-=head1 SYNOPSIS
-
-  use Plack::Builder;
-
-  my $app = sub { ... } # as usual
-
-  builder {
-      enable 'DetectRobots';
-	  # or: enable 'DetectRobots', env_key => 'psgix.robot_client';
-	  # or: enable 'DetectRobots', extended_check => 1, generic_check => 1;
-      $app;
-  };
-
-  # ... and later ...
-  
-  if ( $yourApp->theEnv->{'robot_client'} ) {
-      # ... do something ...
-  }
-
-=head1 WARNING
-
-This software is currently considered ALPHA and still needs to
-be seriously tested!
-
-=head1 DESCRIPTION
-
-This Plack middleware uses the list of robots that is part of the 
-L<AWStats log analyzer|http://awstats.org/> software package to 
-analyse the C<User-Agent> HTTP header and to set an environment 
-flag to either a true or false value depending on the detection 
-of a robot client.
-
-Once activated it checks the User-Agent HTTP header against a 
-basic list of patterns for common bots.
-
-If you activate the appropriate options, it can also use an extended
-list for the detection of less common bots (cf. C<extended_check>)
-and / or a list of quite generic patterns to detect unknown bots
-(cf. C<generic_check>).
-
-You may also pass in your own regular expression as a string for
-further checks (cf. <local_regexp>).
-
-The checks are executed in this order:
-
-B<1.> Local regular expression
-
-B<2.> Basic check
-
-B<3.> Extended check
-
-B<4.> Generic check
-
-If a check yields a positive result (i.e.: detects a bot) the
-remaining checks are skipped.
-
-Depending on the check which detected a bot, the environment flag
-is set to one of these values: C<LOCAL>, C<BASIC>, C<EXTENDED>, or
-C<GENERIC>.
-
-If no bot is detected, the flag is set to C<0>.
-
-The default name of the flag in the environment is C<robot_client>,
-but this can be customized by setting the C<env_key> option when 
-enabling this middleware.
-
-It might make sense to use C<psgix.robot_client> by default instead,
-but the PSGI spec states that the "'psgix.' prefix is reserved for 
-officially blessed extensions" - which does not apply to this module.
-You may, however, set the key to C<psgix.mobile_client> yourself
-by using the C<env_key> option mentioned before.
-
-=head1 ROBOTS LIST
-
-Based on B<Revision 1.71, 2014-01-08> of
-L<http://awstats.cvs.sourceforge.net/viewvc/awstats/awstats/wwwroot/cgi-bin/lib/robots.pm?revision=1.71&view=markup>.
-
-=head1 CONFIGURATION
-
-You may specify the following option when enabling the middleware:
-
-=over 4
-
-=item C<env_key>
-
-Set the name of the entry in the environment hash.
-
-=item C<basic_check>
-
-You may deactivate the standard checks by setting this option to
-a false value. E.g. if your are only interested in obscure bots
-or in your local pattern checks.
-
-By setting this option to a false value while simultaneously 
-passing a regular expression to C<local_regexp> one can imitate
-the behaviour of L<Plack::Middleware::BotDetector>.
-
-=item C<extended_check>
-
-Determines if an extended list of less often seen robots is also
-checked for.
-By default, only common robots are checked for, because the extended
-check requires a rather large and complex regular expression.
-Set this param to a true value to change the default behaviour.
-
-=item C<generic_check>
-
-Determines if the User-Agent string is also analysed to determine
-if it contains certain strings that generically identify the
-client as a bot, e.g. "spider" or "crawler"
-By default, this check is not performed, even though it uses only
-a relatively short and simple regex..
-Set this param to a true value to change the default behaviour.
-
-=item C<local_regexp>
-
-You may optionally pass in your own regular expression (as a Regexp
-object using C<qr//>) to check for additional patterns in the 
-User-Agent string.
-
-=back
-
-=head1 SEE ALSO
-
-L<Plack>, L<Plack::Middleware>, L<Plack::Middleware::BotDetector>,
-L<http://awstats.org/>
-
-The functionality provided by C<Plack::Middleware::BotDetector> is 
-basically the same as that of this module, but it requires you to 
-pass in your own regular expression and does not include a default
-list of known bots.
-
-=cut
 
