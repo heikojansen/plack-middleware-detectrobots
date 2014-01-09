@@ -11,9 +11,8 @@ use Plack::Util::Accessor qw( env_key extended_check generic_check local_regexp 
 use Regexp::Assemble qw();
 use feature 'state';
 
-
 sub call {
-	my ($self, $env) = @_;
+	my ( $self, $env ) = @_;
 
 	state $reList   = _read_list();
 	state $basic    = _assemble( $reList, 'basic' );
@@ -49,7 +48,7 @@ sub call {
 	}
 
 	return $self->app->($env);
-}
+} ## end sub call
 
 sub _assemble {
 	my ( $bots, $type ) = @_;
@@ -63,11 +62,7 @@ sub _assemble {
 }
 
 sub _read_list {
-	my $bots = {
-		basic => [],
-		extended => [],
-		generic => [],
-	};
+	my $bots = { basic => [], extended => [], generic => [], };
 	my $currentType = 'basic';
 
 	while (<Plack::Middleware::DetectRobots::DATA>) {
