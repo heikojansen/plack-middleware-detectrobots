@@ -7,7 +7,7 @@ use strict;
 use warnings;
 
 use parent qw(Plack::Middleware);
-use Plack::Util::Accessor qw( env_key extended_check generic_check local_regexp );
+use Plack::Util::Accessor qw( env_key basic_check extended_check generic_check local_regexp );
 use Regexp::Assemble qw();
 use feature 'state';
 
@@ -31,8 +31,10 @@ sub call {
 		$env->{$key} = 'LOCAL';
 	}
 
-	if ( !$env->{$key} and $ua =~ $basic ) {
-		$env->{$key} = 'BASIC';
+	if ( !$env->{$key} and $self->basic_check ) {
+		if ( $ua =~ $basic ) {
+			$env->{$key} = 'BASIC';
+		}
 	}
 
 	if ( !$env->{$key} and $self->extended_check ) {
@@ -970,6 +972,16 @@ You may specify the following option when enabling the middleware:
 
 Set the name of the entry in the environment hash.
 
+=item C<basic_check>
+
+You may deactivate the standard checks by setting this option to
+a false value. E.g. if your are only interested in obscure bots
+or in your local pattern checks.
+
+By setting this option to a false value while simultaneously 
+passing a regular expression to C<local_regexp> one can imitate
+the behaviour of L<Plack::Middleware::BotDetector>.
+
 =item C<extended_check>
 
 Determines if an extended list of less often seen robots is also
@@ -1001,7 +1013,7 @@ L<Plack>, L<Plack::Middleware>, L<Plack::Middleware::BotDetector>,
 L<http://awstats.org/>
 
 The functionality provided by C<Plack::Middleware::BotDetector> is 
-almost the same as that of this module, but it requires you to 
+basically the same as that of this module, but it requires you to 
 pass in your own regular expression and does not include a default
 list of known bots.
 
