@@ -930,13 +930,13 @@ further checks (cf. <local_regexp>).
 
 The checks are executed in this order:
 
-B<1.> Local regular expression (optional)
+B<1.> Local regular expression
 
 B<2.> Basic check
 
-B<3.> Extended check (optional)
+B<3.> Extended check
 
-B<4.> Generic check (optional)
+B<4.> Generic check
 
 If a check yields a positive result (i.e.: detects a bot) the
 remaining checks are skipped.
