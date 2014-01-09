@@ -7,18 +7,19 @@ use strict;
 use warnings;
 
 use parent qw(Plack::Middleware);
-use Plack::Util::Accessor qw( env_key extended_check generic_check );
+use Plack::Util::Accessor qw( env_key extended_check generic_check local_regexp );
 use Regexp::Assemble qw();
 use feature 'state';
+
 
 sub call {
 	my ($self, $env) = @_;
 
-	state $re_list  = _read_list();
-	state $basic    = _assemble( $re_list, 'basic' );
-	state $extended = _assemble( $re_list, 'extended' );
-	state $generic  = _assemble( $re_list, 'generic' );
-	$re_list = undef;
+	state $reList   = _read_list();
+	state $basic    = _assemble( $reList, 'basic' );
+	state $extended = _assemble( $reList, 'extended' );
+	state $generic  = _assemble( $reList, 'generic' );
+	$reList = undef;
 
 	my $key = defined( $self->env_key ) ? $self->env_key : 'robot_client';
 
@@ -26,19 +27,24 @@ sub call {
 
 	$env->{$key} = 0;
 
-	if ( $ua =~ $basic ) {
-		$env->{$key} = 1;
+	my $local = $self->local_regexp;
+	if ( defined($local) and ( ref $local eq ref qr// ) and ( $ua =~ $local ) ) {
+		$env->{$key} = 'LOCAL';
+	}
+
+	if ( !$env->{$key} and $ua =~ $basic ) {
+		$env->{$key} = 'BASIC';
 	}
 
 	if ( !$env->{$key} and $self->extended_check ) {
 		if ( $ua =~ $extended ) {
-			$env->{$key} = 1;
+			$env->{$key} = 'EXTENDED';
 		}
 	}
 
 	if ( !$env->{$key} and $self->generic_check ) {
 		if ( $ua =~ $generic ) {
-			$env->{$key} = 1;
+			$env->{$key} = 'GENERIC';
 		}
 	}
 
@@ -914,6 +920,36 @@ analyse the C<User-Agent> HTTP header and to set an environment
 flag to either a true or false value depending on the detection 
 of a robot client.
 
+Once activated it checks the User-Agent HTTP header against a 
+basic list of patterns for common bots.
+
+If you activate the appropriate options, it can also use an extended
+list for the detection of less common bots (cf. C<extended_check>)
+and / or a list of quite generic patterns to detect unknown bots
+(cf. C<generic_check>).
+
+You may also pass in your own regular expression as a string for
+further checks (cf. <local_regexp>).
+
+The checks are executed in this order:
+
+B<1.> Local regular expression (optional)
+
+B<2.> Basic check
+
+B<3.> Extended check (optional)
+
+B<4.> Generic check (optional)
+
+If a check yields a positive result (i.e.: detects a bot) the
+remaining checks are skipped.
+
+Depending on the check which detected a bot, the environment flag
+is set to one of these values: C<LOCAL>, C<BASIC>, C<EXTENDED>, or
+C<GENERIC>.
+
+If no bot is detected, the flag is set to C<0>.
+
 The default name of the flag in the environment is C<robot_client>,
 but this can be customized by setting the C<env_key> option when 
 enabling this middleware.
@@ -943,9 +979,8 @@ Set the name of the entry in the environment hash.
 
 Determines if an extended list of less often seen robots is also
 checked for.
-By default, only common robots are checked for, because this
-greatly reduces the regular expression used to examine the User-Agent
-string.
+By default, only common robots are checked for, because the extended
+check requires a rather large and complex regular expression.
 Set this param to a true value to change the default behaviour.
 
 =item C<generic_check>
@@ -957,11 +992,23 @@ By default, this check is not performed, even though it uses only
 a relatively short and simple regex..
 Set this param to a true value to change the default behaviour.
 
+=item C<local_regexp>
+
+You may optionally pass in your own regular expression (as a Regexp
+object using C<qr//>) to check for additional patterns in the 
+User-Agent string.
+
 =back
 
 =head1 SEE ALSO
 
-L<Plack>, L<Plack::Middleware>, L<http://awstats.org/>
+L<Plack>, L<Plack::Middleware>, L<Plack::Middleware::BotDetector>,
+L<http://awstats.org/>
+
+The functionality provided by C<Plack::Middleware::BotDetector> is 
+almost the same as that of this module, but it requires you to 
+pass in your own regular expression and does not include a default
+list of known bots.
 
 =cut
 
