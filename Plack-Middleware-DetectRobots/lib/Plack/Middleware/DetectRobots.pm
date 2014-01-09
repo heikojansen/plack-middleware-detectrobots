@@ -889,9 +889,9 @@ __END__
   my $app = sub { ... } # as usual
 
   builder {
-      enable 'DetectMobileBrowsers';
-	  # or: enable 'DetectMobileBrowsers', env_key => 'psgix.robot_client';
-	  # or: enable 'DetectMobileBrowsers', extended_check => 1;
+      enable 'DetectRobots';
+	  # or: enable 'DetectRobots', env_key => 'psgix.robot_client';
+	  # or: enable 'DetectRobots', extended_check => 1, generic_check => 1;
       $app;
   };
 
@@ -900,6 +900,11 @@ __END__
   if ( $yourApp->theEnv->{'robot_client'} ) {
       # ... do something ...
   }
+
+=head1 WARNING
+
+This software is currently considered ALPHA and still needs to
+be seriously tested!
 
 =head1 DESCRIPTION
 
