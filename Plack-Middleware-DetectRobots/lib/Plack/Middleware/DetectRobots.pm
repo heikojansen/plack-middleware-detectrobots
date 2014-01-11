@@ -115,13 +115,13 @@ sub _read_list {
 
   # ... and later ...
   
-  if ( $yourApp->theEnv->{'robot_client'} ) {
+  if ( $env->{'robot_client'} ) {
       # ... do something ...
   }
 
 =head1 WARNING
 
-This software is currently considered ALPHA and still needs to
+This software is currently considered BETA and still needs to
 be seriously tested!
 
 =head1 DESCRIPTION
@@ -176,6 +176,10 @@ by using the C<env_key> option mentioned before.
 
 Based on B<Revision 1.71, 2014-01-08> of
 L<http://awstats.cvs.sourceforge.net/viewvc/awstats/awstats/wwwroot/cgi-bin/lib/robots.pm?revision=1.71&view=markup>.
+
+B<Note:> that list might be somewhat dated, as I did not find bingbot
+in the list of common bots (only in the extended list) while it's 
+predecessor msnbot was considered common.
 
 =head1 CONFIGURATION
 
