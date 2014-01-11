@@ -237,6 +237,8 @@ list of known bots.
 __DATA__
 appie
 architext
+baiduspider
+bingbot
 bingpreview
 bjaaland
 contentmatch
@@ -273,7 +275,6 @@ jennybot
 mercator
 netcraft
 msnbot\-media
-msnbot
 petersnews
 relevantnoise\.com
 unlost_web_crawler
@@ -424,6 +425,7 @@ mnogosearch
 momspider
 monster
 motor
+msnbot
 muncher
 mwdsearch
 ndspider
@@ -577,7 +579,6 @@ aspseek
 asterias
 awbot
 backlinktest\.com
-baiduspider
 becomebot
 bender
 betabot
@@ -911,7 +912,6 @@ exabot
 alltop
 applesyndication
 asynchttpclient
-bingbot
 blogged_crawl
 bloglovin
 butterfly
