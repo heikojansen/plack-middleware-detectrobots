@@ -13,6 +13,7 @@ use lib qw(./t);
 use pmdr_ua_strings;
 
 my $key = 'robot_client';
+
 # $key = 'psgix.robot_client';
 
 my $app = sub {
@@ -28,11 +29,7 @@ my $app = sub {
 	}
 
 	$response .= ' | ' . $env->{$key};
-	return [
-		200,
-		[ 'Content-Type' => 'text/plain' ],
-		[ $response ]
-	];
+	return [ 200, [ 'Content-Type' => 'text/plain' ], [$response] ];
 };
 
 my $app_with_plugin = builder {
@@ -42,10 +39,10 @@ my $app_with_plugin = builder {
 
 foreach my $ua ( pmdr_ua_strings::browser_ua() ) {
 	test_psgi(
-		app => $app_with_plugin,
+		app    => $app_with_plugin,
 		client => sub {
-			my $cb  = shift;
-			my $req = HTTP::Request->new(GET => "http://localhost/");
+			my $cb = shift;
+			my $req = HTTP::Request->new( GET => "http://localhost/" );
 			$req->header( 'User-Agent' => $ua );
 			my $res = $cb->($req);
 			like $res->content, qr/REGULAR CLIENT DETECTED/, $ua;
@@ -55,10 +52,10 @@ foreach my $ua ( pmdr_ua_strings::browser_ua() ) {
 
 foreach my $ua ( pmdr_ua_strings::common_bot_ua() ) {
 	test_psgi(
-		app => $app_with_plugin,
+		app    => $app_with_plugin,
 		client => sub {
-			my $cb  = shift;
-			my $req = HTTP::Request->new(GET => "http://localhost/");
+			my $cb = shift;
+			my $req = HTTP::Request->new( GET => "http://localhost/" );
 			$req->header( 'User-Agent' => $ua );
 			my $res = $cb->($req);
 			like $res->content, qr/ROBOT CLIENT DETECTED/, $ua;
@@ -68,10 +65,10 @@ foreach my $ua ( pmdr_ua_strings::common_bot_ua() ) {
 
 foreach my $ua ( pmdr_ua_strings::other_bot_ua() ) {
 	test_psgi(
-		app => $app_with_plugin,
+		app    => $app_with_plugin,
 		client => sub {
-			my $cb  = shift;
-			my $req = HTTP::Request->new(GET => "http://localhost/");
+			my $cb = shift;
+			my $req = HTTP::Request->new( GET => "http://localhost/" );
 			$req->header( 'User-Agent' => $ua );
 			my $res = $cb->($req);
 			like $res->content, qr/REGULAR CLIENT DETECTED/, $ua;
