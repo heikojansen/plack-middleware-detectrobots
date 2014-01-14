@@ -1,5 +1,6 @@
 
 {{$NEXT}}
+	- Fix compatibility with Plack <= 1.0015
 
 0.01      2014-01-11 20:59:48 Europe/Berlin
 	- Initial release
