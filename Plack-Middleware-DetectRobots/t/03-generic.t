@@ -35,9 +35,10 @@ my $app = sub {
 	];
 };
 
-my $builder = Plack::Builder->new;
-$builder->add_middleware('DetectRobots', generic_check => 1);
-my $app_with_plugin = $builder->wrap($app);
+my $app_with_plugin = builder {
+	enable 'DetectRobots', generic_check => 1;
+	$app;
+};
 
 foreach my $ua ( pmdr_ua_strings::browser_ua() ) {
 	test_psgi(

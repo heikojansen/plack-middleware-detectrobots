@@ -35,9 +35,10 @@ my $app = sub {
 	];
 };
 
-my $builder = Plack::Builder->new;
-$builder->add_middleware('DetectRobots', local_regexp => qr/maxthon/i, basic_check => 0 );
-my $app_with_plugin = $builder->wrap($app);
+my $app_with_plugin = builder {
+	enable 'DetectRobots', local_regexp => qr/maxthon/i, basic_check => 0;
+	$app;
+};
 
 my %tests = (
 	'Mozilla/5.0 (X11; Linux x86_64; rv:26.0) Gecko/20100101 Firefox/26.0' => 'REGULAR CLIENT DETECTED',
