@@ -169,13 +169,13 @@ enabling this middleware.
 It might make sense to use C<psgix.robot_client> by default instead,
 but the PSGI spec states that the "'psgix.' prefix is reserved for 
 officially blessed extensions" - which does not apply to this module.
-You may, however, set the key to C<psgix.mobile_client> yourself
+You may, however, set the key to C<psgix.robot_client> yourself
 by using the C<env_key> option mentioned before.
 
 =head1 ROBOTS LIST
 
-Based on B<Revision 1.71, 2014-01-08> of
-L<http://awstats.cvs.sourceforge.net/viewvc/awstats/awstats/wwwroot/cgi-bin/lib/robots.pm?revision=1.71&view=markup>.
+Based on B<Revision 2d289e, 2014-11-20> of
+L<http://sourceforge.net/p/awstats/code/ci/develop/tree/wwwroot/cgi-bin/lib/robots.pm>.
 
 B<Note:> that list might be somewhat dated, as I did not find bingbot
 in the list of common bots (only in the extended list) while it's 
@@ -250,16 +250,16 @@ ferret
 googlebot\-image
 googlebot
 google\-sitemaps
-google[_+ ]web[_+ ]preview
+google[_+\s]web[_+\s]preview
 grabber
 gulliver
-virus[_+ ]detector
+virus[_+\s]detector
 harvest
 htdig
 jeeves
 linkwalker
 lilina
-lycos[_+ ]
+lycos[_+\s]
 moget
 muscatferret
 myweb
@@ -408,7 +408,7 @@ jumpstation
 kapsi
 katipo
 kilroy
-ko[_+ ]yappo[_+ ]robot
+ko[_+\s]yappo[_+\s]robot
 kummhttp
 labelgrabber\.txt
 larbin
@@ -495,7 +495,7 @@ smartspider
 snooper
 solbot
 speedy
-spider[_+ ]monkey
+spider[_+\s]monkey
 spiderbot
 spiderline
 spiderman
@@ -588,8 +588,8 @@ bender
 betabot
 biglotron
 bittorrent_bot
-biz360[_+ ]spider
-blogbridge[_+ ]service
+biz360[_+\s]spider
+blogbridge[_+\s]service
 bloglines
 blogpulse
 blogsearch
@@ -603,7 +603,7 @@ bookmark\-manager
 boris
 bubing
 bumblebee
-candlelight[_+ ]favorites[_+ ]inspector
+candlelight[_+\s]favorites[_+\s]inspector
 careerbot
 cbn00glebot
 cerberian_drtrs
@@ -639,7 +639,7 @@ eccp
 edgeio\-retriever
 ets_v
 exactseek
-extreme[_+ ]picture[_+ ]finder
+extreme[_+\s]picture[_+\s]finder
 eventax
 everbeecrawler
 everest\-vulcan
@@ -686,7 +686,7 @@ holmes
 hoowwwer
 hpprint
 htmlparser
-html[_+ ]link[_+ ]validator
+html[_+\s]link[_+\s]validator
 httrack
 hundesuche\.com\-bot
 i-bot
@@ -698,7 +698,7 @@ infohelfer
 infomine
 insurancobot
 integromedb\.org
-internet[_+ ]ninja
+internet[_+\s]ninja
 internetarchive
 internetseer
 internetsupervision
@@ -707,7 +707,7 @@ irlbot
 isearch2006
 istellabot
 iupui_research_bot
-jrtwine[_+ ]software[_+ ]check[_+ ]favorites[_+ ]utility
+jrtwine[_+\s]software[_+\s]check[_+\s]favorites[_+\s]utility
 justview
 kalambot
 kamano\.de_newsfeedverzeichnis
@@ -744,7 +744,7 @@ metaspinner
 miadev
 microsoft bits
 microsoft.*discovery
-microsoft[_+ ]url[_+ ]control
+microsoft[_+\s]url[_+\s]control
 mini\-reptile
 minirank
 missigua_locator
@@ -774,8 +774,8 @@ nutchosu\-vlib
 nutch
 ocelli
 octora_beta_bot
-omniexplorer[_+ ]bot
-onet\.pl[_+ ]sa
+omniexplorer[_+\s]bot
+onet\.pl[_+\s]sa
 onfolio
 opentaggerbot
 openwebspider
@@ -787,7 +787,7 @@ passwordmaker\.org
 pear_http_request_class
 peerbot
 perman
-php[_+ ]version[_+ ]tracker
+php[_+\s]version[_+\s]tracker
 pictureofinternet
 ping\.blo\.gs
 plinki
@@ -810,7 +810,7 @@ sandcrawler
 sbider
 schizozilla
 scumbot
-searchguild[_+ ]dmoz[_+ ]experiment
+searchguild[_+\s]dmoz[_+\s]experiment
 searchmetricsbot
 seekbot
 semrushbot
@@ -867,7 +867,7 @@ vespa_crawler
 vortex
 vse\/
 w3c\-checklink
-w3c[_+ ]css[_+ ]validator[_+ ]jfouffa
+w3c[_+\s]css[_+\s]validator[_+\s]jfouffa
 w3c_validator
 watchmouse
 wavefire
@@ -880,7 +880,7 @@ webdup
 webfilter
 webindexer
 webminer
-website[_+ ]monitoring[_+ ]bot
+website[_+\s]monitoring[_+\s]bot
 webvulncrawl
 wells_search
 wesee:search
@@ -950,13 +950,13 @@ metauri
 microsoft\-webdav\-miniredir
 ^motorola$
 movabletype
-^mozilla\/3\.0 \(compatible$
+^mozilla\/3\.0\s+\(compatible$
 ^mozilla\/4\.0$
-^mozilla\/4\.0 \(compatible;\)$
+^mozilla\/4\.0\s+\(compatible;\)$
 ^mozilla\/5\.0$
-^mozilla\/5\.0 \(compatible;$
-^mozilla\/5\.0 \(en\-us\)$
-^mozilla\/5\.0 firefox\/3\.0\.5$
+^mozilla\/5\.0\s+\(compatible;$
+^mozilla\/5\.0\s+\(en\-us\)$
+^mozilla\/5\.0\s+firefox\/3\.0\.5$
 ^msie
 netnewswire
  netseer 
